@@ -6,11 +6,7 @@ import (
 
 func init() {
 	// completion komutunu gizle
-	for _, cmd := range rootCmd.Commands() {
-		if cmd.Name() == "completion" {
-			cmd.Hidden = true
-		}
-	}
+	rootCmd.CompletionOptions.HiddenDefaultCmd = true
 	
 	// help komutunu Türkçeleştir
 	helpCmd := &cobra.Command{

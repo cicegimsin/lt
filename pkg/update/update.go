@@ -1,7 +1,9 @@
 package update
 
 import (
+	"bufio"
 	"fmt"
+	"os"
 	"os/exec"
 	"strings"
 
@@ -9,12 +11,19 @@ import (
 	"github.com/cicegimsin/lt/internal/config"
 	"github.com/cicegimsin/lt/internal/i18n"
 	"github.com/cicegimsin/lt/internal/ui"
+	"github.com/cicegimsin/lt/pkg/install"
 )
 
 type Updater struct {
 	cfg    *config.Config
 	tr     *i18n.Translator
 	client *aur.Client
+}
+
+type UpdateInfo struct {
+	Name       string
+	LocalVer   string
+	RemoteVer  string
 }
 
 func New(cfg *config.Config, tr *i18n.Translator) *Updater {
@@ -36,7 +45,7 @@ func (u *Updater) Update() error {
 		return nil
 	}
 	
-	var updates []string
+	var updates []UpdateInfo
 	for _, pkg := range installed {
 		aurPkg, err := u.client.Info(pkg)
 		if err != nil {
@@ -45,7 +54,11 @@ func (u *Updater) Update() error {
 		
 		localVer := u.getLocalVersion(pkg)
 		if localVer != aurPkg.Version {
-			updates = append(updates, fmt.Sprintf("- %s (%s -> %s)", pkg, localVer, aurPkg.Version))
+			updates = append(updates, UpdateInfo{
+				Name:      pkg,
+				LocalVer:  localVer,
+				RemoteVer: aurPkg.Version,
+			})
 		}
 	}
 	
@@ -56,8 +69,35 @@ func (u *Updater) Update() error {
 	
 	fmt.Printf("\n[+] %d paket güncellenebilir:\n", len(updates))
 	for _, upd := range updates {
-		fmt.Println(upd)
+		fmt.Printf("  - %s (%s -> %s)\n", ui.Bold(upd.Name), upd.LocalVer, upd.RemoteVer)
 	}
+	
+	fmt.Print("\nGüncellemek istiyor musunuz? [E/h]: ")
+	reader := bufio.NewReader(os.Stdin)
+	response, _ := reader.ReadString('\n')
+	response = strings.TrimSpace(strings.ToLower(response))
+	
+	if response != "e" && response != "evet" && response != "y" && response != "yes" {
+		ui.Info("Güncelleme iptal edildi")
+		return nil
+	}
+	
+	fmt.Println()
+	installer := install.New(u.cfg, u.tr)
+	
+	for i, upd := range updates {
+		fmt.Printf("[%d/%d] %s güncelleniyor...\n", i+1, len(updates), upd.Name)
+		
+		if err := installer.Install(upd.Name); err != nil {
+			ui.Error("%s güncellenemedi: %v", upd.Name, err)
+			continue
+		}
+		
+		ui.Success("%s güncellendi (%s)", upd.Name, upd.RemoteVer)
+	}
+	
+	fmt.Println()
+	ui.Success("Güncelleme tamamlandı!")
 	
 	return nil
 }
