@@ -16,7 +16,7 @@ Hızlı, sade ve Türkçe destekli AUR paket yöneticisi.
 ### Kaynak Koddan
 
 ```bash
-git clone https://github.com/clicksama/lt.git
+git clone https://github.com/cicegimsin/lt.git
 cd lt
 make build
 sudo make install
@@ -25,7 +25,7 @@ sudo make install
 ### Hızlı Kurulum
 
 ```bash
-go install github.com/clicksama/lt@latest
+go install github.com/cicegimsin/lt@latest
 ```
 
 ## Kullanım
@@ -52,17 +52,6 @@ lt bilgi <paket>  # Paket detayları
 lt kaldır <paket> # Paket kaldır
 lt temizle        # Önbellek temizle
 lt indir <paket>  # Sadece kaynak indir
-```
-
-## Yapılandırma
-
-Yapılandırma dosyası: `~/.config/lt/config.toml`
-
-```toml
-language = "tr"
-makeflags = "-j$(nproc)"
-parallel_downloads = 5
-color_scheme = "default"
 ```
 
 ## Gereksinimler
