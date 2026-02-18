@@ -72,12 +72,22 @@ func (u *Updater) Update() error {
 		fmt.Printf("  - %s (%s -> %s)\n", ui.Bold(upd.Name), upd.LocalVer, upd.RemoteVer)
 	}
 	
-	fmt.Print("\nGüncellemek istiyor musunuz? [E/h]: ")
+	fmt.Print("\nGüncellemek istiyor musunuz? [E/h] (varsayılan: E): ")
 	reader := bufio.NewReader(os.Stdin)
-	response, _ := reader.ReadString('\n')
+	response, err := reader.ReadString('\n')
+	if err != nil {
+		ui.Error("Girdi okunamadı: %v", err)
+		return err
+	}
 	response = strings.TrimSpace(strings.ToLower(response))
 	
-	if response != "e" && response != "evet" && response != "y" && response != "yes" {
+	// Boş girdi = varsayılan evet
+	if response == "" {
+		response = "e"
+	}
+	
+	// Sadece açıkça "hayır" derse iptal et
+	if response == "h" || response == "hayir" || response == "n" || response == "no" {
 		ui.Info("Güncelleme iptal edildi")
 		return nil
 	}
