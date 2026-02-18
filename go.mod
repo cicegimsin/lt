@@ -1,4 +1,4 @@
-module github.com/clicksama/lt
+module github.com/cicegimsin/lt-aur-helper
 
 go 1.21
 
