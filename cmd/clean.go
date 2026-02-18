@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/spf13/cobra"
-	"github.com/clicksama/lt/internal/ui"
+	"github.com/cicegimsin/lt-aur-helper/internal/ui"
 )
 
 var cleanCmd = &cobra.Command{

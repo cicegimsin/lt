@@ -2,8 +2,8 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/clicksama/lt/internal/ui"
-	"github.com/clicksama/lt/pkg/install"
+	"github.com/cicegimsin/lt-aur-helper/internal/ui"
+	"github.com/cicegimsin/lt-aur-helper/pkg/install"
 )
 
 var installCmd = &cobra.Command{

@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/clicksama/lt/internal/aur"
-	"github.com/clicksama/lt/internal/i18n"
-	"github.com/clicksama/lt/internal/ui"
+	"github.com/cicegimsin/lt-aur-helper/internal/aur"
+	"github.com/cicegimsin/lt-aur-helper/internal/i18n"
+	"github.com/cicegimsin/lt-aur-helper/internal/ui"
 )
 
 func Search(query string) ([]aur.AURPackage, error) {

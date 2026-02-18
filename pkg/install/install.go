@@ -6,10 +6,10 @@ import (
 	"os/exec"
 	"path/filepath"
 
-	"github.com/clicksama/lt/internal/aur"
-	"github.com/clicksama/lt/internal/config"
-	"github.com/clicksama/lt/internal/i18n"
-	"github.com/clicksama/lt/internal/ui"
+	"github.com/cicegimsin/lt-aur-helper/internal/aur"
+	"github.com/cicegimsin/lt-aur-helper/internal/config"
+	"github.com/cicegimsin/lt-aur-helper/internal/i18n"
+	"github.com/cicegimsin/lt-aur-helper/internal/ui"
 )
 
 type Installer struct {

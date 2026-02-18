@@ -5,8 +5,8 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
-	"github.com/clicksama/lt/internal/aur"
-	"github.com/clicksama/lt/internal/ui"
+	"github.com/cicegimsin/lt-aur-helper/internal/aur"
+	"github.com/cicegimsin/lt-aur-helper/internal/ui"
 )
 
 var infoCmd = &cobra.Command{

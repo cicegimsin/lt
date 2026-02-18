@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/clicksama/lt/cmd"
+	"github.com/cicegimsin/lt-aur-helper/cmd"
 )
 
 func main() {
