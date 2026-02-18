@@ -5,7 +5,7 @@ import (
 	"os/exec"
 
 	"github.com/spf13/cobra"
-	"github.com/cicegimsin/lt-aur-helper/internal/ui"
+	"github.com/cicegimsin/lt/internal/ui"
 )
 
 var removeCmd = &cobra.Command{

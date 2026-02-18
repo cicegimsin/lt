@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/cicegimsin/lt-aur-helper/cmd"
+	"github.com/cicegimsin/lt/cmd"
 )
 
 func main() {

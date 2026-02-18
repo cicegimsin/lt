@@ -6,8 +6,8 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
-	"github.com/cicegimsin/lt-aur-helper/internal/config"
-	"github.com/cicegimsin/lt-aur-helper/internal/i18n"
+	"github.com/cicegimsin/lt/internal/config"
+	"github.com/cicegimsin/lt/internal/i18n"
 )
 
 var (

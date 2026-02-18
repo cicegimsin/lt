@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
-	"github.com/cicegimsin/lt-aur-helper/internal/ui"
-	"github.com/cicegimsin/lt-aur-helper/pkg/search"
+	"github.com/cicegimsin/lt/internal/ui"
+	"github.com/cicegimsin/lt/pkg/search"
 )
 
 var searchCmd = &cobra.Command{

@@ -5,10 +5,10 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/cicegimsin/lt-aur-helper/internal/aur"
-	"github.com/cicegimsin/lt-aur-helper/internal/config"
-	"github.com/cicegimsin/lt-aur-helper/internal/i18n"
-	"github.com/cicegimsin/lt-aur-helper/internal/ui"
+	"github.com/cicegimsin/lt/internal/aur"
+	"github.com/cicegimsin/lt/internal/config"
+	"github.com/cicegimsin/lt/internal/i18n"
+	"github.com/cicegimsin/lt/internal/ui"
 )
 
 type Updater struct {

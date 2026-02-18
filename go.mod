@@ -1,4 +1,4 @@
-module github.com/cicegimsin/lt-aur-helper
+module github.com/cicegimsin/lt
 
 go 1.21
 
