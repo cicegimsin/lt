@@ -17,7 +17,7 @@ Hızlı, sade ve Türkçe destekli AUR paket yöneticisi.
 
 ```bash
 git clone https://github.com/cicegimsin/lt-aur-helper.git
-cd lt
+cd lt-aur-helper
 make build
 sudo make install
 ```
@@ -25,7 +25,7 @@ sudo make install
 ### Hızlı Kurulum
 
 ```bash
-go install https://github.com/cicegimsin/lt-aur-helper@latest
+go install github.com/cicegimsin/lt-aur-helper@latest
 ```
 
 ## Kullanım
@@ -63,4 +63,4 @@ lt indir <paket>  # Sadece kaynak indir
 
 ## Lisans
 
-MIT/home/click/Masaüstü/lt/README.md
+MIT
