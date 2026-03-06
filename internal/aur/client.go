@@ -21,14 +21,18 @@ type RPCResponse struct {
 }
 
 type AURPackage struct {
-	Name        string  `json:"Name"`
-	Version     string  `json:"Version"`
-	Description string  `json:"Description"`
-	URL         string  `json:"URL"`
-	Popularity  float64 `json:"Popularity"`
-	NumVotes    int     `json:"NumVotes"`
-	Maintainer  string  `json:"Maintainer"`
-	LastModified int64  `json:"LastModified"`
+	Name         string   `json:"Name"`
+	Version      string   `json:"Version"`
+	Description  string   `json:"Description"`
+	URL          string   `json:"URL"`
+	Popularity   float64  `json:"Popularity"`
+	NumVotes     int      `json:"NumVotes"`
+	Maintainer   string   `json:"Maintainer"`
+	LastModified int64    `json:"LastModified"`
+	Depends      []string `json:"Depends"`
+	MakeDepends  []string `json:"MakeDepends"`
+	CheckDepends []string `json:"CheckDepends"`
+	OptDepends   []string `json:"OptDepends"`
 }
 
 func NewClient() *Client {

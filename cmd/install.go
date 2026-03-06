@@ -6,6 +6,10 @@ import (
 	"github.com/cicegimsin/lt/pkg/install"
 )
 
+var (
+	noConfirm bool
+)
+
 var installCmd = &cobra.Command{
 	Use:     "kur [paket]",
 	Aliases: []string{"install"},
@@ -14,18 +18,24 @@ var installCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		pkgName := args[0]
 		
-		ui.Info(tr.Get("installing"), pkgName)
+		// NoConfirm flag'ini config'e uygula
+		if noConfirm {
+			cfg.NoConfirm = true
+		}
+		
+		ui.Info("'%s' kuruluyor...", pkgName)
 		
 		installer := install.New(cfg, tr)
 		if err := installer.Install(pkgName); err != nil {
-			ui.Error(tr.Get("install_failed"), err)
+			ui.Error("Kurulum başarısız: %v", err)
 			return
 		}
 		
-		ui.Success(tr.Get("install_complete"), pkgName)
+		ui.Success("Kurulum tamamlandı: %s", pkgName)
 	},
 }
 
 func init() {
+	installCmd.Flags().BoolVar(&noConfirm, "noconfirm", false, "onay istemeden kur")
 	rootCmd.AddCommand(installCmd)
 }

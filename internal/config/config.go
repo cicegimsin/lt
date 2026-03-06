@@ -14,6 +14,13 @@ type Config struct {
 	ColorScheme       string `toml:"color_scheme"`
 	CacheDir          string `toml:"cache_dir"`
 	LogDir            string `toml:"log_dir"`
+	PacmanPath        string `toml:"pacman_path"`
+	SudoPath          string `toml:"sudo_path"`
+	GitPath           string `toml:"git_path"`
+	MakepkgPath       string `toml:"makepkg_path"`
+	SkipReview        bool   `toml:"skip_review"`
+	CleanAfter        bool   `toml:"clean_after"`
+	NoConfirm         bool   `toml:"no_confirm"`
 }
 
 func Load(path string) (*Config, error) {
@@ -69,5 +76,12 @@ func defaultConfig() *Config {
 		ColorScheme:       "default",
 		CacheDir:          filepath.Join(home, ".cache", "lt"),
 		LogDir:            filepath.Join(home, ".local", "share", "lt", "logs"),
+		PacmanPath:        "/usr/bin/pacman",
+		SudoPath:          "/usr/bin/sudo",
+		GitPath:           "/usr/bin/git",
+		MakepkgPath:       "/usr/bin/makepkg",
+		SkipReview:        false,
+		CleanAfter:        true,
+		NoConfirm:         false,
 	}
 }

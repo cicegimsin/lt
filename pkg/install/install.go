@@ -1,54 +1,154 @@
 package install
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 
 	"github.com/cicegimsin/lt/internal/aur"
 	"github.com/cicegimsin/lt/internal/config"
+	"github.com/cicegimsin/lt/internal/deps"
 	"github.com/cicegimsin/lt/internal/i18n"
+	"github.com/cicegimsin/lt/internal/pacman"
 	"github.com/cicegimsin/lt/internal/ui"
 )
 
 type Installer struct {
-	cfg    *config.Config
-	tr     *i18n.Translator
-	client *aur.Client
+	cfg           *config.Config
+	tr            *i18n.Translator
+	aurClient     *aur.Client
+	pacmanClient  *pacman.Client
+	depsResolver  *deps.Resolver
 }
 
 func New(cfg *config.Config, tr *i18n.Translator) *Installer {
+	aurClient := aur.NewClient()
+	pacmanClient := pacman.NewClient(cfg.PacmanPath, cfg.SudoPath)
+	depsResolver := deps.NewResolver(aurClient, pacmanClient)
+	
 	return &Installer{
-		cfg:    cfg,
-		tr:     tr,
-		client: aur.NewClient(),
+		cfg:          cfg,
+		tr:           tr,
+		aurClient:    aurClient,
+		pacmanClient: pacmanClient,
+		depsResolver: depsResolver,
 	}
 }
 
 func (i *Installer) Install(pkgName string) error {
-	pkg, err := i.client.Info(pkgName)
+	ui.Info("Bağımlılıklar analiz ediliyor...")
+	
+	plan, err := i.depsResolver.ResolveDependencies(pkgName)
+	if err != nil {
+		return fmt.Errorf("bağımlılık analizi başarısız: %w", err)
+	}
+	
+	if err := i.showInstallPlan(plan); err != nil {
+		return err
+	}
+	
+	if !i.cfg.NoConfirm {
+		if !i.askConfirmation("Kuruluma devam edilsin mi?") {
+			ui.Warning("Kurulum iptal edildi")
+			return nil
+		}
+	}
+	
+	if len(plan.RepoPackages) > 0 {
+		ui.Header("Resmi repo paketleri kuruluyor")
+		if err := i.pacmanClient.Install(plan.RepoPackages, i.cfg.NoConfirm); err != nil {
+			return fmt.Errorf("repo paketleri kurulumu başarısız: %w", err)
+		}
+		ui.Success("Repo paketleri kuruldu")
+	}
+	
+	for idx, aurPkg := range plan.AURPackages {
+		ui.Header(fmt.Sprintf("AUR paketi (%d/%d): %s", idx+1, len(plan.AURPackages), aurPkg))
+		if err := i.installAURPackage(aurPkg); err != nil {
+			return fmt.Errorf("AUR paketi kurulumu başarısız (%s): %w", aurPkg, err)
+		}
+	}
+	
+	ui.Separator()
+	ui.Success("Tüm paketler başarıyla kuruldu!")
+	return nil
+}
+
+func (i *Installer) showInstallPlan(plan *deps.InstallPlan) error {
+	ui.Header("Kurulum Planı")
+	
+	if len(plan.RepoPackages) > 0 {
+		fmt.Printf("  %s Resmi repo paketleri:\n", ui.Repository("repo"))
+		for _, pkg := range plan.RepoPackages {
+			fmt.Printf("    • %s\n", ui.Bold(pkg))
+		}
+		fmt.Println()
+	}
+	
+	if len(plan.AURPackages) > 0 {
+		fmt.Printf("  %s AUR paketleri:\n", ui.Repository("aur"))
+		for _, pkg := range plan.AURPackages {
+			fmt.Printf("    • %s\n", ui.Bold(pkg))
+		}
+		fmt.Println()
+	}
+	
+	totalCount := len(plan.RepoPackages) + len(plan.AURPackages)
+	ui.Info(fmt.Sprintf("Toplam %d paket kurulacak", totalCount))
+	
+	return nil
+}
+
+func (i *Installer) askConfirmation(message string) bool {
+	fmt.Printf("%s [E/h] (varsayılan: E): ", message)
+	
+	reader := bufio.NewReader(os.Stdin)
+	response, err := reader.ReadString('\n')
+	if err != nil {
+		return false
+	}
+	
+	response = strings.ToLower(strings.TrimSpace(response))
+	return response == "" || response == "e" || response == "evet" || response == "y" || response == "yes"
+}
+
+func (i *Installer) installAURPackage(pkgName string) error {
+	pkg, err := i.aurClient.Info(pkgName)
 	if err != nil {
 		return fmt.Errorf("paket bilgisi alınamadı: %w", err)
 	}
-	
-	ui.Success("Bağımlılıklar kontrol ediliyor...")
 	
 	buildDir := filepath.Join(i.cfg.CacheDir, pkg.Name)
 	if err := os.MkdirAll(buildDir, 0755); err != nil {
 		return err
 	}
 	
-	ui.Success("Kaynak indiriliyor...")
+	ui.Info("Kaynak kodu indiriliyor...")
 	if err := i.cloneRepo(pkg.Name, buildDir); err != nil {
 		return err
 	}
 	
-	ui.Success("Paket derleniyor...")
-	if err := i.buildPackage(buildDir); err != nil {
+	if !i.cfg.SkipReview {
+		if !i.cfg.NoConfirm {
+			if i.askConfirmation(fmt.Sprintf("%s PKGBUILD dosyasını incelemek istiyor musunuz?", pkg.Name)) {
+				i.showPKGBUILD(buildDir)
+			}
+		}
+	}
+	
+	ui.Info("Paket derleniyor ve kuruluyor...")
+	if err := i.buildAndInstallPackage(buildDir); err != nil {
 		return err
 	}
 	
+	if i.cfg.CleanAfter {
+		os.RemoveAll(buildDir)
+	}
+	
+	ui.Success(fmt.Sprintf("%s kuruldu", pkg.Name))
 	return nil
 }
 
@@ -59,18 +159,34 @@ func (i *Installer) cloneRepo(pkgName, dest string) error {
 		os.RemoveAll(dest)
 	}
 	
-	cmd := exec.Command("git", "clone", url, dest)
+	cmd := exec.Command(i.cfg.GitPath, "clone", url, dest)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	
 	return cmd.Run()
 }
 
-func (i *Installer) buildPackage(buildDir string) error {
-	cmd := exec.Command("makepkg", "-si", "--noconfirm")
+func (i *Installer) showPKGBUILD(buildDir string) {
+	pkgbuildPath := filepath.Join(buildDir, "PKGBUILD")
+	
+	cmd := exec.Command("less", pkgbuildPath)
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	cmd.Run()
+}
+
+func (i *Installer) buildAndInstallPackage(buildDir string) error {
+	args := []string{"-si"}
+	if i.cfg.NoConfirm {
+		args = append(args, "--noconfirm")
+	}
+	
+	cmd := exec.Command(i.cfg.MakepkgPath, args...)
 	cmd.Dir = buildDir
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
+	cmd.Stdin = os.Stdin
 	cmd.Env = append(os.Environ(), "MAKEFLAGS="+i.cfg.MakeFlags)
 	
 	return cmd.Run()

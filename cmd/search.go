@@ -11,27 +11,27 @@ import (
 var searchCmd = &cobra.Command{
 	Use:     "ara [paket]",
 	Aliases: []string{"search"},
-	Short:   "AUR'da paket ara",
+	Short:   "Resmi repolar ve AUR'da paket ara",
 	Args:    cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		query := args[0]
 		
-		ui.Info(tr.Get("searching"), query)
+		ui.Info("Paket aranıyor: %s", query)
 		
-		results, err := search.Search(query)
+		results, err := search.Search(query, cfg.PacmanPath, cfg.SudoPath)
 		if err != nil {
-			ui.Error(tr.Get("search_failed"), err)
+			ui.Error("Arama başarısız: %v", err)
 			return
 		}
 		
 		if len(results) == 0 {
-			ui.Warning(tr.Get("no_results"))
+			ui.Warning("Paket bulunamadı")
 			return
 		}
 		
 		search.DisplayResults(results, tr)
 		fmt.Println()
-		ui.Info(tr.Get("install_hint"))
+		ui.Info("Kurulum için: lt kur <paket-adı>")
 	},
 }
 
