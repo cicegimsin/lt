@@ -13,7 +13,7 @@ var updateCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		um, err := universal.NewUniversalManager()
 		if err != nil {
-			ui.Error("Sistem tespit edilemedi: %v", err)
+			ui.Error("Sistem algılanamadı: %v", err)
 			return
 		}
 		

@@ -5,10 +5,8 @@ import (
 )
 
 func init() {
-	// completion komutunu gizle
 	rootCmd.CompletionOptions.HiddenDefaultCmd = true
 	
-	// help komutunu Türkçeleştir
 	helpCmd := &cobra.Command{
 		Use:   "yardim [komut]",
 		Short: "Herhangi bir komut hakkında yardım",
@@ -28,7 +26,5 @@ func init() {
 	}
 	
 	rootCmd.AddCommand(helpCmd)
-	
-	// Orijinal help komutunu gizle
 	rootCmd.SetHelpCommand(helpCmd)
 }

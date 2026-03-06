@@ -18,7 +18,7 @@ var searchCmd = &cobra.Command{
 		
 		um, err := universal.NewUniversalManager()
 		if err != nil {
-			ui.Error("Sistem tespit edilemedi: %v", err)
+			ui.Error("Sistem algılanamadı: %v", err)
 			return
 		}
 		

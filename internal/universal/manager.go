@@ -20,7 +20,7 @@ type Package struct {
 	Version     string
 	Description string
 	Repository  string
-	Source      string // "official", "aur", "homebrew", etc.
+	Source      string
 }
 
 func NewUniversalManager() (*UniversalManager, error) {
@@ -55,7 +55,6 @@ func (um *UniversalManager) Search(query string) ([]Package, error) {
 		allPackages = append(allPackages, officialPackages...)
 	}
 	
-	// Topluluk paketlerinden ara (sadece destekleyen sistemlerde)
 	if um.OSInfo.SupportsCommunityRepos() {
 		communityPackages, err := um.searchCommunity(query)
 		if err == nil {
@@ -80,8 +79,6 @@ func (um *UniversalManager) searchOfficial(query string) ([]Package, error) {
 }
 
 func (um *UniversalManager) searchCommunity(query string) ([]Package, error) {
-	// Topluluk paket API kullan
-	// Bu kısmı daha sonra implement edeceğiz
 	return []Package{}, nil
 }
 

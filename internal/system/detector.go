@@ -147,7 +147,6 @@ func DetectOS() (*OSInfo, error) {
 }
 
 func detectLinuxDistro(osInfo *OSInfo) (*OSInfo, error) {
-	// /etc/os-release dosyasını oku
 	if data, err := os.ReadFile("/etc/os-release"); err == nil {
 		lines := strings.Split(string(data), "\n")
 		for _, line := range lines {
@@ -160,7 +159,6 @@ func detectLinuxDistro(osInfo *OSInfo) (*OSInfo, error) {
 		}
 	}
 	
-	// Paket yöneticisini tespit et
 	osInfo.PackageManager = detectPackageManager()
 	
 	return osInfo, nil
@@ -169,12 +167,10 @@ func detectLinuxDistro(osInfo *OSInfo) (*OSInfo, error) {
 func detectMacOS(osInfo *OSInfo) (*OSInfo, error) {
 	osInfo.Distribution = "macos"
 	
-	// macOS versiyonunu al
 	if output, err := exec.Command("sw_vers", "-productVersion").Output(); err == nil {
 		osInfo.Version = strings.TrimSpace(string(output))
 	}
 	
-	// Paket yöneticisini tespit et
 	if commandExists("brew") {
 		osInfo.PackageManager = "brew"
 	} else if commandExists("port") {
@@ -189,12 +185,10 @@ func detectMacOS(osInfo *OSInfo) (*OSInfo, error) {
 func detectWindows(osInfo *OSInfo) (*OSInfo, error) {
 	osInfo.Distribution = "windows"
 	
-	// Windows versiyonunu al
 	if output, err := exec.Command("cmd", "/c", "ver").Output(); err == nil {
 		osInfo.Version = strings.TrimSpace(string(output))
 	}
 	
-	// Paket yöneticisini tespit et
 	if commandExists("choco") {
 		osInfo.PackageManager = "choco"
 	} else if commandExists("scoop") {
@@ -207,7 +201,6 @@ func detectWindows(osInfo *OSInfo) (*OSInfo, error) {
 }
 
 func detectPackageManager() string {
-	// Öncelik sırasına göre paket yöneticilerini kontrol et
 	managers := []string{"pacman", "apt", "dnf", "yum", "zypper", "apk"}
 	
 	for _, manager := range managers {

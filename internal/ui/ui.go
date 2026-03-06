@@ -122,7 +122,7 @@ func CategoryBox(category, count string, items []string) {
 	fmt.Println()
 }
 
-func InstallPlanBox(repoPackages, aurPackages []string) {
+func InstallPlanBox(repoPackages, communityPackages []string) {
 	fmt.Printf("\n%s %s\n", blue("▶"), bold("KURULUM PLANI"))
 	
 	width := getTerminalWidth()
@@ -141,19 +141,19 @@ func InstallPlanBox(repoPackages, aurPackages []string) {
 		fmt.Println()
 	}
 	
-	if len(aurPackages) > 0 {
+	if len(communityPackages) > 0 {
 		fmt.Printf("  %s %s %s\n", 
 			Repository("TOPLULUK"), 
 			bold("Topluluk"), 
-			gray(fmt.Sprintf("(%d paket)", len(aurPackages))))
+			gray(fmt.Sprintf("(%d paket)", len(communityPackages))))
 		
-		for _, pkg := range aurPackages {
+		for _, pkg := range communityPackages {
 			fmt.Printf("    %s %s\n", cyan("•"), Bold(pkg))
 		}
 		fmt.Println()
 	}
 	
-	totalText := fmt.Sprintf("Toplam: %d paket", len(repoPackages)+len(aurPackages))
+	totalText := fmt.Sprintf("Toplam: %d paket", len(repoPackages)+len(communityPackages))
 	fmt.Printf("  %s %s\n", cyan("→"), bold(totalText))
 	fmt.Println()
 }
