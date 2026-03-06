@@ -19,8 +19,8 @@ var (
 
 var rootCmd = &cobra.Command{
 	Use:   "lt",
-	Short: "Sade AUR paket yöneticisi",
-	Long:  "lt - Hızlı ve sade AUR paket yöneticisi",
+	Short: "Evrensel paket yöneticisi",
+	Long:  "lt - Tüm işletim sistemleri için birleşik paket yöneticisi",
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
 		var err error
 		cfg, err = config.Load(cfgFile)

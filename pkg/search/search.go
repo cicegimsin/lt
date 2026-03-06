@@ -3,7 +3,6 @@ package search
 import (
 	"fmt"
 	"sort"
-	"strings"
 	"time"
 
 	"github.com/cicegimsin/lt/internal/aur"
@@ -71,6 +70,11 @@ func Search(query string, pacmanPath, sudoPath string) ([]SearchResult, error) {
 }
 
 func DisplayResults(results []SearchResult, tr *i18n.Translator) {
+	if len(results) == 0 {
+		ui.Warning("Hiçbir paket bulunamadı")
+		return
+	}
+	
 	repoCount := 0
 	aurCount := 0
 	
@@ -82,25 +86,33 @@ func DisplayResults(results []SearchResult, tr *i18n.Translator) {
 		}
 	}
 	
+	ui.Banner("PAKET ARAMA SONUÇLARI")
+	
 	if repoCount > 0 {
-		ui.Header(fmt.Sprintf("Resmi Repolar (%d paket)", repoCount))
+		var repoItems []string
 		for _, result := range results {
 			if !result.IsAUR {
-				fmt.Printf("%s/%s %s\n",
+				item := fmt.Sprintf("%s/%s %s", 
 					ui.Repository(result.Repository),
 					ui.Bold(result.Name),
-					ui.Highlight(result.Version),
-				)
+					ui.Highlight(result.Version))
+				
 				if result.Description != "" {
-					fmt.Printf("    %s\n", result.Description)
+					desc := result.Description
+					if len(desc) > 60 {
+						desc = desc[:57] + "..."
+					}
+					item += "\n" + desc
 				}
-				fmt.Println()
+				repoItems = append(repoItems, item)
 			}
 		}
+		ui.CategoryBox("Resmi Repolar", fmt.Sprintf("%d paket", repoCount), repoItems)
+		fmt.Println()
 	}
 	
 	if aurCount > 0 {
-		ui.Header(fmt.Sprintf("AUR (%d paket)", aurCount))
+		var aurItems []string
 		for _, result := range results {
 			if result.IsAUR {
 				votes := ""
@@ -108,34 +120,31 @@ func DisplayResults(results []SearchResult, tr *i18n.Translator) {
 					votes = fmt.Sprintf(" ★ %d", result.Votes)
 				}
 				
-				fmt.Printf("%s/%s %s%s\n",
+				item := fmt.Sprintf("%s/%s %s%s",
 					ui.Repository("aur"),
 					ui.Bold(result.Name),
 					ui.Highlight(result.Version),
-					votes,
-				)
+					votes)
 				
 				if result.Description != "" {
 					desc := result.Description
-					if len(desc) > 80 {
-						desc = desc[:77] + "..."
+					if len(desc) > 60 {
+						desc = desc[:57] + "..."
 					}
-					fmt.Printf("    %s\n", desc)
+					item += "\n" + desc
 				}
 				
 				if !result.LastMod.IsZero() {
-					fmt.Printf("    Son güncelleme: %s\n", 
+					item += fmt.Sprintf("\nSon güncelleme: %s", 
 						result.LastMod.Format("02.01.2006"))
 				}
-				fmt.Println()
+				
+				aurItems = append(aurItems, item)
 			}
 		}
+		ui.CategoryBox("AUR", fmt.Sprintf("%d paket", aurCount), aurItems)
 	}
 	
-	if len(results) == 0 {
-		ui.Warning("Hiçbir paket bulunamadı")
-	} else {
-		ui.Separator()
-		ui.Info(fmt.Sprintf("Toplam %d paket bulundu", len(results)))
-	}
+	ui.Separator()
+	ui.Box("ÖZET", fmt.Sprintf("Toplam %d paket bulundu\nKurulum için: lt kur <paket-adı>", len(results)))
 }

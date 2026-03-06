@@ -43,7 +43,8 @@ func (i *Installer) Install(pkgName string) error {
 	
 	plan, err := i.depsResolver.ResolveDependencies(pkgName)
 	if err != nil {
-		return fmt.Errorf("bağımlılık analizi başarısız: %w", err)
+		ui.Error("Bağımlılık analizi başarısız: %v", err)
+		return err
 	}
 	
 	if err := i.showInstallPlan(plan); err != nil {
@@ -58,17 +59,23 @@ func (i *Installer) Install(pkgName string) error {
 	}
 	
 	if len(plan.RepoPackages) > 0 {
-		ui.Header("Resmi repo paketleri kuruluyor")
+		ui.Header("Resmi Repo Paketleri")
+		ui.Info("Resmi repo paketleri kuruluyor...")
 		if err := i.pacmanClient.Install(plan.RepoPackages, i.cfg.NoConfirm); err != nil {
-			return fmt.Errorf("repo paketleri kurulumu başarısız: %w", err)
+			ui.Error("Repo paketleri kurulumu başarısız: %v", err)
+			return err
 		}
 		ui.Success("Repo paketleri kuruldu")
 	}
 	
-	for idx, aurPkg := range plan.AURPackages {
-		ui.Header(fmt.Sprintf("AUR paketi (%d/%d): %s", idx+1, len(plan.AURPackages), aurPkg))
-		if err := i.installAURPackage(aurPkg); err != nil {
-			return fmt.Errorf("AUR paketi kurulumu başarısız (%s): %w", aurPkg, err)
+	if len(plan.AURPackages) > 0 {
+		ui.Header("AUR Paketleri")
+		for idx, aurPkg := range plan.AURPackages {
+			ui.Info("AUR paketi kuruluyor (%d/%d): %s", idx+1, len(plan.AURPackages), aurPkg)
+			if err := i.installAURPackage(aurPkg); err != nil {
+				ui.Error("AUR paketi kurulumu başarısız (%s): %v", aurPkg, err)
+				return err
+			}
 		}
 	}
 	
@@ -78,27 +85,7 @@ func (i *Installer) Install(pkgName string) error {
 }
 
 func (i *Installer) showInstallPlan(plan *deps.InstallPlan) error {
-	ui.Header("Kurulum Planı")
-	
-	if len(plan.RepoPackages) > 0 {
-		fmt.Printf("  %s Resmi repo paketleri:\n", ui.Repository("repo"))
-		for _, pkg := range plan.RepoPackages {
-			fmt.Printf("    • %s\n", ui.Bold(pkg))
-		}
-		fmt.Println()
-	}
-	
-	if len(plan.AURPackages) > 0 {
-		fmt.Printf("  %s AUR paketleri:\n", ui.Repository("aur"))
-		for _, pkg := range plan.AURPackages {
-			fmt.Printf("    • %s\n", ui.Bold(pkg))
-		}
-		fmt.Println()
-	}
-	
-	totalCount := len(plan.RepoPackages) + len(plan.AURPackages)
-	ui.Info(fmt.Sprintf("Toplam %d paket kurulacak", totalCount))
-	
+	ui.InstallPlanBox(plan.RepoPackages, plan.AURPackages)
 	return nil
 }
 

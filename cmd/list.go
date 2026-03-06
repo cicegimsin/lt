@@ -2,41 +2,44 @@ package cmd
 
 import (
 	"fmt"
-	"os/exec"
-	"strings"
 
 	"github.com/spf13/cobra"
+	"github.com/cicegimsin/lt/internal/pacman"
 	"github.com/cicegimsin/lt/internal/ui"
 )
 
 var listCmd = &cobra.Command{
 	Use:     "liste",
 	Aliases: []string{"list"},
-	Short:   "Kurulu AUR paketlerini listele",
+	Short:   "Kurulu paketleri listele",
 	Run: func(cmd *cobra.Command, args []string) {
-		ui.Info("Kurulu AUR paketleri:")
+		pacmanClient := pacman.NewClient(cfg.PacmanPath, cfg.SudoPath)
 		
-		cmdExec := exec.Command("pacman", "-Qm")
-		output, err := cmdExec.Output()
+		ui.Header("KURULU PAKETLER")
+		ui.Info("Paketler listeleniyor...")
+		
+		packages, err := pacmanClient.GetForeignPackages()
 		if err != nil {
 			ui.Error("Paket listesi alınamadı: %v", err)
 			return
 		}
 		
-		lines := strings.Split(string(output), "\n")
-		count := 0
-		for _, line := range lines {
-			if line == "" {
-				continue
-			}
-			parts := strings.Fields(line)
-			if len(parts) >= 2 {
-				fmt.Printf("  %s %s\n", ui.Bold(parts[0]), parts[1])
-				count++
-			}
+		if len(packages) == 0 {
+			ui.Box("BİLGİ", "Kurulu paket bulunamadı")
+			return
 		}
 		
-		fmt.Printf("\nToplam: %d paket\n", count)
+		var items []string
+		for _, pkg := range packages {
+			items = append(items, fmt.Sprintf("%s %s", 
+				ui.Bold(pkg.Name), 
+				ui.Highlight(pkg.Version)))
+		}
+		
+		ui.CategoryBox("Kurulu Paketler", fmt.Sprintf("%d paket", len(packages)), items)
+		
+		ui.Separator()
+		ui.Box("ÖZET", fmt.Sprintf("Toplam %d paket kurulu", len(packages)))
 	},
 }
 

@@ -1,13 +1,13 @@
-# lt - Türkçe AUR Yardımcısı
+# lt - Evrensel Paket Yöneticisi
 
 <div align="center">
 
-⚡ Hızlı ve sade Türkçe AUR paket yöneticisi
+🌍 Tüm işletim sistemleri için birleşik paket yöneticisi
 
 [![Go Version](https://img.shields.io/badge/Go-1.21+-00ADD8?style=flat&logo=go)](https://go.dev/)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-[Kurulum](#kurulum) • [Kullanım](#kullanım) • [Özellikler](#özellikler)
+[Kurulum](#kurulum) • [Kullanım](#kullanım) • [Desteklenen Sistemler](#desteklenen-sistemler)
 
 </div>
 
@@ -15,25 +15,41 @@
 
 ## Özellikler
 
-- 🇹🇷 **Türkçe arayüz** - Komutlar ve çıktılar tamamen Türkçe
+- 🌍 **Evrensel Destek** - Linux, macOS, Windows
+- 🔍 **Akıllı Tespit** - Otomatik işletim sistemi ve paket yöneticisi tespiti
+- 🎨 **Renkli CLI** - Terminal genişliğine göre otomatik ayarlama
+- 📦 **Çoklu Kaynak** - Resmi repolar + AUR + Homebrew + Chocolatey
+- 🇹🇷 **Türkçe Arayüz** - Komutlar ve çıktılar tamamen Türkçe
 - ⚡ **Hızlı** - Go ile yazılmış, paralel işlemler
-- � **Renkli çıktı** - Terminall'de güzel görünüm
-- 📦 **Akıllı bağımlılık çözümü** - Otomatik dependency management
-- 🏛️ **Hibrit arama** - Hem resmi repo hem AUR
-- 🔧 **Pacman entegrasyonu** - Sistem ile tam uyumlu
 
 ---
-go install github.com/cicegimsin/lt@latest
+
+## Desteklenen Sistemler
+
+### Linux Dağıtımları
+- **Arch Linux** - pacman + AUR desteği
+- **Ubuntu/Debian** - apt paket yöneticisi
+- **Fedora/CentOS/RHEL** - dnf/yum paket yöneticisi
+- **openSUSE** - zypper paket yöneticisi
+- **Alpine Linux** - apk paket yöneticisi
+
+### macOS
+- **Homebrew** - brew paket yöneticisi
+- **MacPorts** - port paket yöneticisi
+
+### Windows
+- **Chocolatey** - choco paket yöneticisi
+- **Scoop** - scoop paket yöneticisi
+
+---
+
 ## Kurulum
 
 ```bash
-# Gereksinimler
-sudo pacman -S go git base-devel
-
-# lt kurulumu
+# Tüm sistemler için
 go install github.com/cicegimsin/lt@latest
 
-# PATH ayarı
+# PATH ayarı (gerekirse)
 echo 'export PATH=$PATH:~/go/bin' >> ~/.bashrc
 source ~/.bashrc
 ```
@@ -42,70 +58,51 @@ source ~/.bashrc
 
 ## Kullanım
 
-### Temel komutlar
+### Temel Komutlar
 
 ```bash
-lt ara neovim          # Paket ara
-lt kur yazi            # Paket kur
-lt güncelle            # Sistem + AUR güncelle
-lt kaldır paket-adi    # Paket kaldır
-lt liste               # Kurulu paketleri listele
-lt bilgi neovim        # Paket bilgisi
-lt temizle             # Önbellek temizle
+lt ara firefox          # Paket ara (tüm kaynaklardan)
+lt kur firefox          # Paket kur
+lt güncelle            # Sistem güncelle
+lt kaldır firefox      # Paket kaldır
+lt sistem              # Sistem bilgileri
 ```
 
-### Seçenekler
+### Örnek Çıktılar
 
-```bash
-lt kur --noconfirm paket    # Onaysız kurulum
+**Sistem Tespiti:**
 ```
-go install github.com/cicegimsin/lt@latest
-### Örnek çıktılar
+◆ SİSTEM BİLGİLERİ
+═══════════════════════════════════════════════════════
 
-**Hibrit arama:**
+▶ İŞLETİM SİSTEMİ
+  İşletim Sistemi: Ubuntu Linux
+  Dağıtım: ubuntu
+  Sürüm: 22.04
+  Mimari: linux
+
+▶ PAKET YÖNETİCİSİ
+  Paket Yöneticisi: apt
+  Sudo Gerekli: true
+  AUR Desteği: false
 ```
-$ lt ara firefox
 
-◆ Resmi Repolar (1 paket)
-extra/firefox 121.0-1
-    Free and open-source web browser from Mozilla
+**Evrensel Arama:**
+```
+◆ PAKET ARAMA
+═══════════════════════════════════════════════════════
+→ Sistem: Ubuntu Linux 22.04 (apt)
+→ Paket aranıyor: firefox
 
-◆ AUR (3 paket)
-aur/firefox-beta 122.0b9-1 ★ 45
+EXTRA Resmi Paketler (1 paket)
+──────────────────────────────────────────────────────
+  • firefox 108.0.1+build1-0ubuntu1
+    Mozilla Firefox web browser
+
+AUR (2 paket)
+──────────────────────────────────────────────────────
+  • firefox-beta 109.0b9-1 ★ 45
     Standalone web browser from mozilla.org - Beta
-    Son güncelleme: 15.12.2023
-
-─────────────────────────────────────────
-→ Toplam 4 paket bulundu
-```
-
-**Akıllı kurulum:**
-```
-$ lt kur yazi
-
-→ Bağımlılıklar analiz ediliyor...
-
-◆ Kurulum Planı
-  repo Resmi repo paketleri:
-    • gcc
-    • make
-
-  aur AUR paketleri:
-    • yazi
-
-→ Toplam 3 paket kurulacak
-Kuruluma devam edilsin mi? [E/h] (varsayılan: E): 
-
-◆ Resmi repo paketleri kuruluyor
-✓ Repo paketleri kuruldu
-
-◆ AUR paketi (1/1): yazi
-→ Kaynak kodu indiriliyor...
-→ Paket derleniyor ve kuruluyor...
-✓ yazi kuruldu
-
-─────────────────────────────────────────
-✓ Tüm paketler başarıyla kuruldu!
 ```
 
 ---
@@ -116,20 +113,34 @@ Dosya: `~/.config/lt/config.toml`
 
 ```toml
 language = "tr"
-makeflags = "-j$(nproc)"
-cache_dir = "~/.cache/lt"
-
-# Sistem yolları
-pacman_path = "/usr/bin/pacman"
-sudo_path = "/usr/bin/sudo"
-git_path = "/usr/bin/git"
-makepkg_path = "/usr/bin/makepkg"
-
-# Davranış
-skip_review = false
-clean_after = true
 no_confirm = false
+
+# Otomatik tespit edilen değerler
+[system]
+os_type = "linux"
+distribution = "ubuntu"
+package_manager = "apt"
+sudo_path = "/usr/bin/sudo"
 ```
+
+---
+
+## Gelişmiş Özellikler
+
+### Çoklu Paket Yöneticisi Desteği
+- Sistem otomatik olarak mevcut paket yöneticilerini tespit eder
+- Birden fazla paket yöneticisi varsa en uygun olanı seçer
+- AUR desteği Arch tabanlı sistemlerde otomatik aktif olur
+
+### Akıllı Arama
+- Resmi repolardan ve alternatif kaynaklardan arama
+- Sonuçları kaynaklarına göre kategorize etme
+- Terminal genişliğine göre otomatik formatlar
+
+### Platform Özel Optimizasyonlar
+- **Linux**: sudo yetkilendirmesi, paket bağımlılıkları
+- **macOS**: Homebrew/MacPorts entegrasyonu
+- **Windows**: PowerShell/CMD uyumluluğu
 
 ---
 
@@ -139,14 +150,8 @@ MIT License - detaylar için [LICENSE](LICENSE) dosyasına bakın.
 
 ---
 
-## Katkı
-
-Pull request'ler ve issue'lar hoş geldiniz.
-
----
-
 <div align="center">
 
-Arch Linux kullanıcıları için Click tarafından yapıldı
+**Tüm işletim sistemleri için ❤️ ile yapıldı**
 
 </div>

@@ -2,7 +2,6 @@ package pacman
 
 import (
 	"bufio"
-	"fmt"
 	"os"
 	"os/exec"
 	"strings"

@@ -38,6 +38,8 @@ func New(cfg *config.Config, tr *i18n.Translator) *Updater {
 }
 
 func (u *Updater) Update() error {
+	ui.Banner("SISTEM VE AUR GÜNCELLEMESİ")
+	
 	ui.Header("Sistem Güncellemesi")
 	ui.Info("Sistem paketleri güncelleniyor...")
 	
@@ -52,16 +54,21 @@ func (u *Updater) Update() error {
 	
 	aurPackages, err := u.pacmanClient.GetForeignPackages()
 	if err != nil {
-		return fmt.Errorf("kurulu AUR paketleri alınamadı: %w", err)
+		ui.Error("Kurulu AUR paketleri alınamadı: %v", err)
+		return err
 	}
 	
 	if len(aurPackages) == 0 {
-		ui.Info("Kurulu AUR paketi bulunamadı")
+		ui.Box("BİLGİ", "Kurulu AUR paketi bulunamadı")
 		return nil
 	}
 	
 	var updates []UpdateInfo
-	for _, pkg := range aurPackages {
+	ui.Info("Sürüm kontrolü yapılıyor...")
+	
+	for i, pkg := range aurPackages {
+		ui.Progress(i, len(aurPackages), pkg.Name)
+		
 		aurPkg, err := u.aurClient.Info(pkg.Name)
 		if err != nil {
 			continue
@@ -76,27 +83,26 @@ func (u *Updater) Update() error {
 			})
 		}
 	}
+	fmt.Println() // Progress satırını bitir
 	
 	if len(updates) == 0 {
 		ui.Success("Tüm AUR paketleri güncel")
 		return nil
 	}
 	
-	ui.Header("Güncellenebilir Paketler")
-	fmt.Printf("  %d AUR paketi güncellenebilir:\n\n", len(updates))
-	
+	var updateItems []string
 	for _, upd := range updates {
-		fmt.Printf("  %s %s → %s\n", 
+		updateItems = append(updateItems, fmt.Sprintf("%s  %s → %s", 
 			ui.Bold(upd.Name), 
 			ui.Highlight(upd.LocalVer),
-			ui.Highlight(upd.RemoteVer))
+			ui.Highlight(upd.RemoteVer)))
 	}
 	
-	fmt.Println()
+	ui.CategoryBox("Güncellenebilir Paketler", fmt.Sprintf("%d paket", len(updates)), updateItems)
 	
 	if !u.cfg.NoConfirm {
 		if !u.askConfirmation("AUR paketlerini güncellemek istiyor musunuz?") {
-			ui.Info("AUR güncellemesi iptal edildi")
+			ui.Box("İPTAL", "AUR güncellemesi iptal edildi")
 			return nil
 		}
 	}
@@ -105,8 +111,7 @@ func (u *Updater) Update() error {
 	installer := install.New(u.cfg, u.tr)
 	
 	for i, upd := range updates {
-		ui.Progress(i, len(updates), upd.Name)
-		fmt.Printf("\n")
+		ui.Info("Güncelleniyor (%d/%d): %s", i+1, len(updates), upd.Name)
 		
 		if err := installer.Install(upd.Name); err != nil {
 			ui.Error("%s güncellenemedi: %v", upd.Name, err)

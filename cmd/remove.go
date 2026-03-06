@@ -7,49 +7,54 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
-	"github.com/cicegimsin/lt/internal/pacman"
 	"github.com/cicegimsin/lt/internal/ui"
+	"github.com/cicegimsin/lt/internal/universal"
 )
 
 var removeCmd = &cobra.Command{
 	Use:     "kaldır [paket]",
 	Aliases: []string{"remove"},
-	Short:   "Paketi kaldır",
+	Short:   "Paketi kaldır (evrensel)",
 	Args:    cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		pkgName := args[0]
 		
-		// Pacman client oluştur
-		pacmanClient := pacman.NewClient(cfg.PacmanPath, cfg.SudoPath)
+		um, err := universal.NewUniversalManager()
+		if err != nil {
+			ui.Error("Sistem tespit edilemedi: %v", err)
+			return
+		}
 		
-		// Paket kurulu mu kontrol et
-		if !pacmanClient.IsInstalled(pkgName) {
+		ui.Banner("PAKET KALDIRMA")
+		ui.Info("Sistem: %s", um.GetSystemInfo())
+		
+		if !um.IsInstalled(pkgName) {
 			ui.Error("'%s' paketi kurulu değil", pkgName)
 			return
 		}
 		
-		// Onay iste (eğer noconfirm değilse)
+		ui.Box("UYARI", fmt.Sprintf("'%s' paketi kaldırılacak", pkgName))
+		
 		if !cfg.NoConfirm {
-			fmt.Printf("\n'%s' paketini kaldırmak istediğinize emin misiniz? [E/h]: ", ui.Bold(pkgName))
+			fmt.Printf("\nDevam etmek istiyor musunuz? [E/h] (varsayılan: h): ")
 			reader := bufio.NewReader(os.Stdin)
 			response, _ := reader.ReadString('\n')
 			response = strings.TrimSpace(strings.ToLower(response))
 			
-			if response != "e" && response != "evet" && response != "y" && response != "yes" && response != "" {
-				ui.Info("İşlem iptal edildi")
+			if response != "e" && response != "evet" && response != "y" && response != "yes" {
+				ui.Box("İPTAL", "Paket kaldırma işlemi iptal edildi")
 				return
 			}
 		}
 		
 		ui.Info("'%s' kaldırılıyor...", pkgName)
 		
-		// Pacman client kullanarak kaldır
-		if err := pacmanClient.Remove([]string{pkgName}, cfg.NoConfirm); err != nil {
+		if err := um.Remove([]string{pkgName}, cfg.NoConfirm); err != nil {
 			ui.Error("Paket kaldırılamadı: %v", err)
 			return
 		}
 		
-		ui.Success("Paket kaldırıldı: %s", pkgName)
+		ui.Success("Paket başarıyla kaldırıldı: %s", pkgName)
 	},
 }
 
