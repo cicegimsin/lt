@@ -23,7 +23,7 @@
 - 🔧 **Pacman entegrasyonu** - Sistem ile tam uyumlu
 
 ---
-
+go install github.com/cicegimsin/lt@latest
 ## Kurulum
 
 ```bash
@@ -59,7 +59,7 @@ lt temizle             # Önbellek temizle
 ```bash
 lt kur --noconfirm paket    # Onaysız kurulum
 ```
-
+go install github.com/cicegimsin/lt@latest
 ### Örnek çıktılar
 
 **Hibrit arama:**
@@ -147,6 +147,6 @@ Pull request'ler ve issue'lar hoş geldiniz.
 
 <div align="center">
 
-Arch Linux kullanıcıları için ❤️ ile yapıldı
+Arch Linux kullanıcıları için Click tarafından yapıldı
 
 </div>
